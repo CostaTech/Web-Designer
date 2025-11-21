@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Designer - Crea e Codifica</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Web Designer Visuale</h1>
+            <p>Progetta elementi e vedi il codice HTML/CSS in tempo reale</p>
+        </header>
+
+        <div class="main-layout">
+            <!-- PANNELLO STRUMENTI -->
+            <aside class="tools-panel">
+                <h2>🛠️ Strumenti</h2>
+
+                <div class="tool-section">
+                    <h3>Aggiungi Elemento</h3>
+                    <button class="add-btn" data-type="h1">Titolo H1</button>
+                    <button class="add-btn" data-type="h2">Titolo H2</button>
+                    <button class="add-btn" data-type="h3">Titolo H3</button>
+                    <button class="add-btn" data-type="h4">Titolo H4</button>
+                    <button class="add-btn" data-type="h5">Titolo H5</button>
+                    <button class="add-btn" data-type="h6">Titolo H6</button>
+                    <button class="add-btn" data-type="paragraph">Paragrafo</button>
+                    <button class="add-btn" data-type="button">Bottone</button>
+                    <button class="add-btn" data-type="box">Box</button>
+                    <button class="add-btn" data-type="image">Immagine</button>
+                    <button class="add-btn" data-type="grid">Griglia</button>
+                    <button class="add-btn" data-type="form">Form Login</button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Proprietà Elemento</h3>
+                    <div id="properties">
+                        <p class="info-text">Seleziona un elemento per modificarlo</p>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <button id="clear-btn" class="danger-btn">🗑️ Cancella Tutto</button>
+                </div>
+            </aside>
+
+            <!-- AREA CENTRALE -->
+            <main class="content-area">
+                <!-- DESIGNER -->
+                <section class="designer-section">
+                    <h2>Anteprima Design</h2>
+                    <div id="designer" class="designer-canvas">
+                        <p class="placeholder">Inizia aggiungendo elementi dal pannello a sinistra</p>
+                    </div>
+                </section>
+
+                <!-- CODICE -->
+                <section class="code-section">
+                    <div class="code-header">
+                        <h2>📝 Codice Generato</h2>
+                        <div class="code-buttons">
+                            <button id="copy-html-btn" class="copy-btn">📋 HTML</button>
+                            <button id="copy-css-btn" class="copy-btn">🎨 CSS</button>
+                            <button id="copy-js-btn" class="copy-btn">⚙️ JS</button>
+                            <button id="copy-all-btn" class="copy-btn">✂️ Tutto</button>
+                        </div>
+                    </div>
+                    <div class="code-tabs">
+                        <button class="code-tab-btn active" data-tab="html">HTML</button>
+                        <button class="code-tab-btn" data-tab="css">CSS</button>
+                        <button class="code-tab-btn" data-tab="js">JS</button>
+                    </div>
+                    <pre id="code-output-html" class="code-output active"></pre>
+                    <pre id="code-output-css" class="code-output"></pre>
+                    <pre id="code-output-js" class="code-output"></pre>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
