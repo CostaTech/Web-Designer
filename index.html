@@ -34,12 +34,49 @@
                     <button class="add-btn" data-type="image">Immagine</button>
                     <button class="add-btn" data-type="grid">Griglia</button>
                     <button class="add-btn" data-type="form">Form Login</button>
+                    <button class="add-btn" data-type="navbar">Navbar</button>
                 </div>
 
                 <div class="tool-section">
                     <h3>Proprietà Elemento</h3>
                     <div id="properties">
                         <p class="info-text">Seleziona un elemento per modificarlo</p>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3>⚙️ Layout Globale</h3>
+                    <div class="property-input">
+                        <label>Colore Preview:</label>
+                        <input type="color" id="global-designer-bg" value="#f8f9fa" class="global-setting">
+                    </div>
+                    <div class="property-input">
+                        <label>Larghezza Contenitore:</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="number" id="global-container-width" value="1000" class="global-setting"
+                                style="flex: 1;">
+                            <span style="width: 30px; display: flex; align-items: center;">px</span>
+                        </div>
+                    </div>
+                    <div class="property-input">
+                        <label>Padding Contenitore:</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="number" id="global-container-padding" value="20" class="global-setting"
+                                style="flex: 1;">
+                            <span style="width: 30px; display: flex; align-items: center;">px</span>
+                        </div>
+                    </div>
+                    <div class="property-input">
+                        <label>Colore Sfondo:</label>
+                        <input type="color" id="global-body-bg" value="#f5f5f5" class="global-setting">
+                    </div>
+                    <div class="property-input">
+                        <label>Colore Primario:</label>
+                        <input type="color" id="global-primary-color" value="#667eea" class="global-setting">
+                    </div>
+                    <div class="property-input">
+                        <label>Colore Testo:</label>
+                        <input type="color" id="global-text-color" value="#333333" class="global-setting">
                     </div>
                 </div>
 

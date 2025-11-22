@@ -152,7 +152,7 @@ header p {
     padding: 30px;
     min-height: 300px;
     max-height: 350px;
-    overflow-y: auto;
+    overflow: auto;
     position: relative;
 }
 
@@ -165,14 +165,14 @@ header p {
 
 /* ELEMENTI NEL DESIGNER */
 .designer-element {
-    position: relative;
-    margin-bottom: 15px;
+    position: absolute;
     padding: 12px;
     background: white;
     border: 2px solid #ddd;
     border-radius: 6px;
-    cursor: pointer;
+    cursor: grab;
     transition: border-color 0.2s, box-shadow 0.2s;
+    user-select: none;
 }
 
 .designer-element:hover {

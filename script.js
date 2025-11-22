@@ -4,6 +4,9 @@ let elements = [];
 let selectedElement = null;
 let elementIdCounter = 0;
 let gridCellTexts = {}; // Per salvare i testi delle celle griglia
+let draggedElement = null;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 
 // Elementi disponibili con le loro proprietà
 const elementTypes = {
@@ -177,7 +180,29 @@ const elementTypes = {
             margin: { label: 'Margin', type: 'number', value: '10', unit: 'px' },
             borderRadius: { label: 'Arrotondamento', type: 'number', value: '8', unit: 'px' }
         }
+    },
+    navbar: {
+        name: 'Navbar',
+        tag: 'nav',
+        defaultContent: '',
+        properties: {
+            bgColor: { label: 'Colore Sfondo', type: 'color', value: '#667eea' },
+            textColor: { label: 'Colore Testo', type: 'color', value: '#ffffff' },
+            links: { label: 'Link', type: 'text', value: 'Home,About,Services,Contact' },
+            padding: { label: 'Padding', type: 'number', value: '15', unit: 'px' },
+            margin: { label: 'Margin', type: 'number', value: '0', unit: 'px' }
+        }
     }
+};
+
+// Impostazioni globali del sito
+let globalSettings = {
+    containerWidth: 1000,
+    containerPadding: 20,
+    bodyBgColor: '#f5f5f5',
+    primaryColor: '#667eea',
+    textColor: '#333333',
+    designerBgColor: '#f8f9fa'
 };
 
 // Elementi sulla pagina
@@ -277,7 +302,26 @@ codeTabBtns.forEach(btn => {
             codeOutputJs.classList.add('active');
         }
     });
-});// Aggiungi elemento
+});
+
+// Event listeners per le impostazioni globali
+document.querySelectorAll('.global-setting').forEach(input => {
+    input.addEventListener('change', () => {
+        globalSettings.designerBgColor = document.getElementById('global-designer-bg').value;
+        globalSettings.containerWidth = parseInt(document.getElementById('global-container-width').value) || 1000;
+        globalSettings.containerPadding = parseInt(document.getElementById('global-container-padding').value) || 20;
+        globalSettings.bodyBgColor = document.getElementById('global-body-bg').value;
+        globalSettings.primaryColor = document.getElementById('global-primary-color').value;
+        globalSettings.textColor = document.getElementById('global-text-color').value;
+
+        // Aggiorna il colore della preview
+        designer.style.backgroundColor = globalSettings.designerBgColor;
+
+        renderCode();
+    });
+});
+
+// Aggiungi elemento
 function addElement(type) {
     const elementType = elementTypes[type];
     if (!elementType) return;
@@ -336,8 +380,10 @@ function renderDesigner() {
     designer.innerHTML = elements.map(element => {
         const html = createElementHTML(element);
         const isSelected = selectedElement === element.id;
+        const top = element.position?.top || Math.random() * 50;
+        const left = element.position?.left || Math.random() * 50;
         return `
-            <div class="designer-element ${isSelected ? 'selected' : ''}" data-id="${element.id}">
+            <div class="designer-element ${isSelected ? 'selected' : ''}" data-id="${element.id}" style="top: ${top}px; left: ${left}px;">
                 ${html}
                 <button class="element-delete-btn" title="Elimina">✕</button>
             </div>
@@ -352,13 +398,58 @@ function renderDesigner() {
             }
         });
 
+        el.addEventListener('mousedown', (e) => {
+            if (!e.target.classList.contains('element-delete-btn')) {
+                draggedElement = el;
+                const rect = el.getBoundingClientRect();
+                const canvasRect = designer.getBoundingClientRect();
+                dragOffsetX = e.clientX - rect.left;
+                dragOffsetY = e.clientY - rect.top;
+                el.style.zIndex = '1000';
+                el.style.cursor = 'grabbing';
+            }
+        });
+
         el.querySelector('.element-delete-btn').addEventListener('click', () => {
             deleteElement(parseInt(el.dataset.id));
         });
     });
-}
 
-// Crea HTML dell'elemento
+    // Mouse move per il drag
+    document.addEventListener('mousemove', (e) => {
+        if (draggedElement) {
+            const canvasRect = designer.getBoundingClientRect();
+            let newX = e.clientX - canvasRect.left - dragOffsetX;
+            let newY = e.clientY - canvasRect.top - dragOffsetY;
+
+            // Limita il movimento entro il canvas
+            newX = Math.max(0, Math.min(newX, canvasRect.width - draggedElement.offsetWidth));
+            newY = Math.max(0, Math.min(newY, canvasRect.height - draggedElement.offsetHeight));
+
+            draggedElement.style.top = newY + 'px';
+            draggedElement.style.left = newX + 'px';
+        }
+    });
+
+    // Mouse up per terminare il drag
+    document.addEventListener('mouseup', () => {
+        if (draggedElement) {
+            draggedElement.style.zIndex = 'auto';
+            draggedElement.style.cursor = 'grab';
+
+            const elementId = parseInt(draggedElement.dataset.id);
+            const element = elements.find(el => el.id === elementId);
+            if (element) {
+                element.position = {
+                    top: parseInt(draggedElement.style.top),
+                    left: parseInt(draggedElement.style.left)
+                };
+            }
+
+            draggedElement = null;
+        }
+    });
+}// Crea HTML dell'elemento
 function createElementHTML(element) {
     const props = element.properties;
     const type = element.type;
@@ -497,6 +588,24 @@ function createElementHTML(element) {
                 </form>
             `;
 
+        case 'navbar':
+            const links = props.links.value.split(',').map(link => `<a href="#" style="color: ${props.textColor.value}; text-decoration: none; margin: 0 15px; font-weight: 600;">${link.trim()}</a>`).join('');
+            return `
+                <nav style="
+                    background-color: ${props.bgColor.value};
+                    padding: ${props.padding.value}px;
+                    margin: ${props.margin.value}px;
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                ">
+                    <span style="color: ${props.textColor.value}; font-weight: bold; font-size: 18px;">Logo</span>
+                    <div style="display: flex; gap: 10px;">
+                        ${links}
+                    </div>
+                </nav>
+            `;
+
         default:
             return '';
     }
@@ -611,12 +720,14 @@ function renderCode() {
     cssCode += '    box-sizing: border-box;\n';
     cssCode += '}\n\n';
     cssCode += 'body {\n';
-    cssCode += '    font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif;\n';
-    cssCode += '    background: #f5f5f5;\n';
+    cssCode += `    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n`;
+    cssCode += `    background: ${globalSettings.bodyBgColor};\n`;
+    cssCode += `    color: ${globalSettings.textColor};\n`;
     cssCode += '    padding: 20px;\n';
     cssCode += '}\n\n';
     cssCode += '.container {\n';
-    cssCode += '    max-width: 1000px;\n';
+    cssCode += `    max-width: ${globalSettings.containerWidth}px;\n`;
+    cssCode += `    padding: ${globalSettings.containerPadding}px;\n`;
     cssCode += '    margin: 0 auto;\n';
     cssCode += '}\n\n';
 
@@ -784,9 +895,41 @@ function renderCode() {
                 styles += `    text-decoration: none;\n`;
                 styles += `}\n\n`;
                 break;
+
+            case 'navbar':
+                styles = `.element-${element.id} {\n`;
+                styles += `    background-color: ${props.bgColor.value};\n`;
+                styles += `    padding: ${props.padding.value}px;\n`;
+                styles += `    margin: ${props.margin.value}px;\n`;
+                styles += `    display: flex;\n`;
+                styles += `    align-items: center;\n`;
+                styles += `    gap: 20px;\n`;
+                styles += `}\n\n`;
+                styles += `.element-${element.id} a {\n`;
+                styles += `    color: ${props.textColor.value};\n`;
+                styles += `    text-decoration: none;\n`;
+                styles += `    margin: 0 15px;\n`;
+                styles += `    font-weight: 600;\n`;
+                styles += `    transition: opacity 0.3s;\n`;
+                styles += `}\n\n`;
+                styles += `.element-${element.id} a:hover {\n`;
+                styles += `    opacity: 0.7;\n`;
+                styles += `}\n\n`;
+                break;
         }
 
         if (styles) cssCode += styles;
+    });
+
+    // Aggiungi positioning agli elementi
+    elements.forEach((element) => {
+        if (element.position) {
+            cssCode += `.element-${element.id} {\n`;
+            cssCode += `    position: absolute;\n`;
+            cssCode += `    top: ${element.position.top}px;\n`;
+            cssCode += `    left: ${element.position.left}px;\n`;
+            cssCode += `}\n\n`;
+        }
     });
 
     cssCode += '/* RESPONSIVE */\n';
@@ -894,6 +1037,14 @@ function generateElementCode(element) {
 
             formHtml += `</form>\n`;
             return formHtml;
+
+        case 'navbar':
+            const links = props.links.value.split(',').map(link => `<a href="#">${link.trim()}</a>`).join('\n        ');
+            let navHtml = `<nav${classAttr}>\n`;
+            navHtml += `        <span>Logo</span>\n`;
+            navHtml += `        ${links}\n`;
+            navHtml += `</nav>\n`;
+            return navHtml;
 
         default:
             return '';
